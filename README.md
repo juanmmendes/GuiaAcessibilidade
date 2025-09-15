@@ -1,5 +1,5 @@
 Guia Interativo de Acessibilidade Digital ♿
-Um projeto educacional interativo, criado para apresentar as melhores práticas de design acessível de forma moderna, visual e impactante.
+Um projeto educacional interativo, criado para apresentar as melhores práticas de design acessível de forma visual.
 
 Este guia foi desenvolvido como uma ferramenta de apresentação para demonstrar de maneira prática e memorável os princípios fundamentais de acessibilidade na web, transformando diretrizes importantes em uma experiência de aprendizado dinâmica.
 
