@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Acessibilidade para Apresentação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Cosmic Gradient -->
+    <!-- Application Structure Plan: Retaining the successful tab-based, dual-column structure, this version elevates the user experience for a presentation context. The core logic remains, but the focus shifts to creating a high-impact, memorable visual journey. The design uses a sophisticated dark theme, "glassmorphism" for depth, and cinematic animations to make the content feel more engaging and significant. This structure is ideal for presentations as it allows the presenter to navigate clearly between topics while keeping the audience engaged with a polished, modern interface. -->
+    <!-- Visualization & Content Choices: Report Info: Accessibility guidelines. -> Goal: Impress, educate, and engage an audience in a presentation setting. -> Viz/Presentation Method: Frosted glass (glassmorphism) cards on a dark, gradient background. The "Do/Don't" distinction is made with vibrant, glowing top borders and icon colors. -> Interaction: Smoother, cinematic transitions between categories. Refined card flip animation with a 3D perspective and a subtle hover lift effect. -> Justification: The dark theme and glass effect create a premium, focused atmosphere. The fluid, staggered animations make the information unfold dynamically, holding audience attention. This is a significant step up from a static design, turning the guide into a professional presentation tool. -> Library/Method: Vanilla JavaScript for state, Tailwind CSS for layout, and a heavy emphasis on custom CSS properties and animations for the visual flair. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --color-do: #22c55e;
+            --color-dont: #ef4444;
+            --color-brand: #8b5cf6;
+            --color-brand-light: #a78bfa;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+            background-color: #0f172a;
+            background-image: radial-gradient(circle at 1% 1%, #1e293b 0%, transparent 50%), 
+                              radial-gradient(circle at 99% 99%, #1e1b4b 0%, transparent 50%);
+        }
+
+        .header-title {
+            background-image: linear-gradient(to right, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        header { animation: fadeInDown 0.8s ease-out backwards; }
+
+        .tab-button {
+            transition: all 0.3s ease;
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: #cbd5e1;
+        }
+        .tab-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--color-brand-light);
+        }
+        .tab-button.active {
+            background-color: var(--color-brand);
+            color: white;
+            box-shadow: 0 0 20px 0 rgba(139, 92, 246, 0.5);
+            transform: translateY(-2px);
+            border-color: var(--color-brand);
+        }
+
+        #content-area {
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+        
+        .section-title-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        .icon-do { background-color: var(--color-do); box-shadow: 0 0 15px 0 var(--color-do); }
+        .icon-dont { background-color: var(--color-dont); box-shadow: 0 0 15px 0 var(--color-dont); }
+
+        .card-container {
+            perspective: 1500px;
+        }
+        .card {
+            transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+            transform-style: preserve-3d;
+            position: relative;
+        }
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 1rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-container:hover .card-front:not(.is-flipped .card-front) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .card.is-flipped .card-front,
+        .card.is-flipped .card-front * {
+            visibility: hidden; /* Fix for text ghosting */
+        }
+        .card-back { transform: rotateY(180deg); }
+
+        .dos-card .card-front { border-top: 3px solid var(--color-do); }
+        .donts-card .card-front { border-top: 3px solid var(--color-dont); }
+
+        .dos-card .card-back { background-color: rgba(34, 197, 94, 0.2); border-color: rgba(34, 197, 94, 0.5); }
+        .dos-card .card-back p { color: #f0fff4; }
+
+        .donts-card .card-back { background-color: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); }
+        .donts-card .card-back p { color: #fff1f2; }
+
+        @keyframes card-intro {
+            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .card-container {
+            animation: card-intro 0.6s ease-out forwards;
+            opacity: 0;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-12">
+            <h1 class="header-title text-5xl md:text-7xl font-bold tracking-tight">Guia de Acessibilidade Digital</h1>
+            <p class="mt-4 text-lg text-slate-400 max-w-3xl mx-auto">Um guia interativo de boas práticas para criar experiências inclusivas e impactantes.</p>
+        </header>
+
+        <nav id="category-tabs" class="flex flex-wrap justify-center gap-3 mb-16" style="animation: fadeInDown 0.8s 0.2s ease-out backwards;">
+        </nav>
+        
+        <main id="content-area">
+             <div class="text-center mb-12">
+                <h2 id="current-category-title" class="text-3xl md:text-4xl font-bold text-white"></h2>
+                <p id="current-category-description" class="mt-2 max-w-3xl mx-auto text-slate-400"></p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                <section>
+                    <h3 class="text-2xl font-bold text-slate-200 mb-6 flex items-center justify-center">
+                        <span class="section-title-icon icon-do">&#x2713;</span> O Que Fazer
+                    </h3>
+                    <div id="dos-container" class="space-y-8"></div>
+                </section>
+                <section>
+                    <h3 class="text-2xl font-bold text-slate-200 mb-6 flex items-center justify-center">
+                        <span class="section-title-icon icon-dont">&#x2717;</span> O Que Não Fazer
+                    </h3>
+                    <div id="donts-container" class="space-y-8"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const accessibilityData = {
+            autismo: {
+                name: "Transtorno do Espectro Autista",
+                description: "Diretrizes para criar experiências digitais claras, previsíveis e com baixo estímulo sensorial para usuários no espectro autista, que podem ser sensíveis a sobrecarga de informação e estímulos.",
+                dos: [
+                    { title: "Use cores simples e contrastes adequados", details: "Prefira paletas de cores suaves e com bom contraste. Cores muito brilhantes ou com baixo contraste podem causar desconforto visual e dificultar a leitura." },
+                    { title: "Utilize linguagem clara e direta", details: "Evite metáforas, gírias ou expressões idiomáticas. A comunicação objetiva e literal é mais fácil de processar. Ex: Em vez de 'Estamos de braços abertos para te ajudar', use 'Estamos prontos para te ajudar'." },
+                    { title: "Crie layouts consistentes e previsíveis", details: "Mantenha a navegação e a disposição dos elementos consistentes em todas as páginas. A previsibilidade ajuda a reduzir a ansiedade e a carga cognitiva." },
+                    { title: "Forneça instruções e feedbacks claros", details: "Indique claramente o que o usuário deve fazer e forneça um feedback imediato para suas ações, como 'Sua mensagem foi enviada com sucesso'." },
+                    { title: "Use ícones e imagens para dar suporte ao texto", details: "Elementos visuais podem ajudar a reforçar a compreensão do conteúdo, desde que sejam simples e diretamente relacionados ao texto." },
+                    { title: "Divida o conteúdo em blocos menores", details: "Use parágrafos curtos, listas e cabeçalhos para quebrar grandes volumes de texto. Isso torna a informação mais fácil de escanear e absorver." },
+                ],
+                donts: [
+                    { title: "Não use cores muito brilhantes ou com baixo contraste", details: "Paletas de cores excessivamente vibrantes ou com combinações de baixo contraste podem ser visualmente avassaladoras e dificultar a leitura." },
+                    { title: "Não apresente informações de forma desorganizada", details: "Evite layouts confusos e sem uma hierarquia visual clara. A desordem aumenta a carga cognitiva e a dificuldade de concentração." },
+                    { title: "Não use figuras de linguagem ou sarcasmo", details: "A interpretação literal é comum. Expressões figurativas podem ser confusas. Comunique-se de forma direta e sem ambiguidades." },
+                    { title: "Não crie interações que dependem de tempo", details: "Evite pop-ups ou mensagens que desaparecem sozinhas. Dê ao usuário tempo suficiente para ler e processar a informação no seu próprio ritmo." },
+                    { title: "Não use vídeos ou áudios com reprodução automática", details: "Sons e movimentos inesperados podem ser perturbadores e estressantes. Permita sempre que o usuário inicie a reprodução do conteúdo." },
+                    { title: "Não sobrecarregue com muitas opções ou estímulos", details: "Evite excesso de links, botões ou animações. Um ambiente digital 'barulhento' pode levar à sobrecarga sensorial e à desistência da tarefa." }
+                ]
+            },
+            dislexia: {
+                name: "Dislexia",
+                description: "Diretrizes focadas em melhorar a legibilidade e a clareza textual para usuários com dislexia, que podem ter dificuldades no reconhecimento e processamento de palavras.",
+                 dos: [
+                    { title: "Use fontes sans-serif e tamanho legível", details: "Fontes como Arial, Helvetica ou Verdana, com tamanho mínimo de 12px, são mais fáceis de ler. Evite fontes cursivas ou muito estilizadas." },
+                    { title: "Alinhe o texto à esquerda", details: "O alinhamento justificado cria espaçamentos irregulares que dificultam a leitura. O alinhamento à esquerda mantém um fluxo de leitura consistente." },
+                    { title: "Use imagens e diagramas para apoiar o texto", details: "Recursos visuais podem transmitir informações complexas de forma mais eficaz e complementar a compreensão do conteúdo escrito." },
+                    { title: "Permita a personalização da interface", details: "Ofereça opções para o usuário alterar o tamanho da fonte, o contraste e as cores de fundo, permitindo uma experiência de leitura mais confortável." },
+                ],
+                donts: [
+                    { title: "Não use texto em itálico ou caixa alta excessivamente", details: "Grandes blocos de texto em itálico ou maiúsculas são difíceis de ler e podem quebrar o fluxo de reconhecimento das palavras." },
+                    { title: "Não sublinhe palavras que não sejam links", details: "O sublinhado é uma convenção para links. Usá-lo para ênfase pode confundir o usuário e poluir visualmente o texto." },
+                    { title: "Não dependa apenas de texto para transmitir informação", details: "Combine texto com ícones, gráficos ou vídeos para oferecer múltiplas formas de entender o conteúdo." },
+                    { title: "Não use fundo com padrões ou imagens", details: "Fundos complexos competem com o texto, diminuindo o contraste e tornando a leitura uma tarefa cansativa e difícil." },
+                ]
+            },
+            baixa_visao: {
+                name: "Baixa Visão",
+                description: "Recomendações para garantir que o conteúdo seja perceptível e operável por usuários com visão limitada, que podem depender de zoom ou leitores de tela.",
+                dos: [
+                    { title: "Garanta um alto contraste entre texto e fundo", details: "Use ferramentas para verificar se o contraste atende aos níveis recomendados (mínimo de 4.5:1 para texto normal)." },
+                    { title: "Use texto grande e redimensionável", details: "O texto deve ser grande o suficiente por padrão e permitir que o usuário o aumente em até 200% sem quebrar o layout." },
+                    { title: "Crie layouts responsivos e fluidos", details: "O design deve se adaptar a diferentes níveis de zoom e tamanhos de tela, evitando a necessidade de rolagem horizontal." },
+                ],
+                donts: [
+                    { title: "Não use texto em cima de imagens complexas", details: "Isso geralmente cria áreas de baixo contraste, tornando o texto ilegível para muitos usuários." },
+                    { title: "Não desabilite o zoom do navegador", details: "Muitos usuários com baixa visão dependem do gesto de pinça ou do atalho de zoom para conseguir ler o conteúdo." },
+                    { title: "Não use unidades fixas (px) para fontes", details: "Prefira unidades relativas (rem, em) para que o tamanho da fonte se ajuste de acordo com as configurações do navegador do usuário." },
+                ]
+            },
+            deficiencia_auditiva: {
+                name: "Deficiência Auditiva",
+                description: "Práticas para tornar o conteúdo de áudio e multimídia acessível para usuários surdos ou com perda auditiva, que dependem de alternativas textuais.",
+                 dos: [
+                    { title: "Forneça legendas para todo conteúdo de vídeo", details: "As legendas devem ser sincronizadas, precisas e fáceis de ler, permitindo que o usuário compreenda o diálogo e os sons importantes." },
+                    { title: "Disponibilize transcrições para conteúdo de áudio", details: "Uma transcrição textual completa permite o acesso à informação de podcasts ou gravações de áudio." },
+                    { title: "Use uma linguagem simples e clara", details: "Para muitos surdos, a língua de sinais é o primeiro idioma. Textos claros e bem estruturados facilitam a compreensão." },
+                ],
+                donts: [
+                    { title: "Não dependa apenas de áudio para alertas", details: "Notificações e alertas devem ter uma alternativa visual, como uma mudança de cor, um ícone ou uma mensagem de texto." },
+                    { title: "Não use vídeos ou áudios com reprodução automática", details: "A reprodução automática pode ser perturbadora e dificulta a ativação de legendas antes que o conteúdo comece." },
+                    { title: "Não forneça legendas geradas automaticamente sem revisão", details: "As legendas automáticas frequentemente contêm erros que podem distorcer o significado da informação." },
+                ]
+            },
+             deficiencia_fisica: {
+                name: "Deficiência Física / Motora",
+                description: "Estratégias para projetar interfaces que possam ser navegadas e operadas sem a necessidade de um mouse ou de interações motoras finas.",
+                dos: [
+                    { title: "Garanta que tudo seja acessível via teclado", details: "Todas as funcionalidades, incluindo botões, links e formulários, devem ser operáveis usando apenas a tecla Tab, Enter e as setas." },
+                    { title: "Crie grandes áreas de clique para botões e links", details: "Áreas de toque maiores são mais fáceis de acertar, beneficiando usuários com tremores ou imprecisão motora." },
+                    { title: "Dê tempo suficiente para completar tarefas", details: "Evite ações que expiram rapidamente. Se um tempo limite for necessário, permita que o usuário o estenda." },
+                ],
+                donts: [
+                    { title: "Não use interações que exijam movimentos precisos", details: "Ações como arrastar e soltar (drag-and-drop) ou sliders muito pequenos podem ser impossíveis de usar para alguns usuários." },
+                    { title: "Não esconda funcionalidades atrás de interações de 'hover'", details: "Menus ou informações que só aparecem ao passar o mouse por cima não são acessíveis para quem navega pelo teclado ou toque." },
+                    { title: "Não crie uma ordem de tabulação ilógica", details: "A navegação com a tecla Tab deve seguir a ordem visual dos elementos na tela, para que a experiência seja previsível e coerente." },
+                ]
+            }
+        };
+
+        const categoryTabs = document.getElementById('category-tabs');
+        const dosContainer = document.getElementById('dos-container');
+        const dontsContainer = document.getElementById('donts-container');
+        const currentCategoryTitle = document.getElementById('current-category-title');
+        const currentCategoryDescription = document.getElementById('current-category-description');
+        const contentArea = document.getElementById('content-area');
+
+        function createCard(item, type) {
+            const cardContainer = document.createElement('div');
+            cardContainer.className = 'card-container h-56 cursor-pointer';
+
+            const card = document.createElement('div');
+            card.className = `card w-full h-full ${type}-card`;
+            card.onclick = () => card.classList.toggle('is-flipped');
+
+            const cardFront = document.createElement('div');
+            cardFront.className = 'card-face card-front p-6';
+            const frontTitle = document.createElement('p');
+            frontTitle.className = 'text-lg font-semibold text-center text-slate-200';
+            frontTitle.textContent = item.title;
+            cardFront.appendChild(frontTitle);
+            const frontHint = document.createElement('span');
+            frontHint.className = 'absolute bottom-5 text-xs font-medium text-slate-500 tracking-wider uppercase';
+            frontHint.textContent = 'Ver detalhes';
+            cardFront.appendChild(frontHint);
+
+            const cardBack = document.createElement('div');
+            cardBack.className = 'card-face card-back p-6';
+            const backDetails = document.createElement('p');
+            backDetails.className = 'text-base text-center font-medium';
+            backDetails.textContent = item.details;
+            cardBack.appendChild(backDetails);
+
+            card.appendChild(cardFront);
+            card.appendChild(cardBack);
+            cardContainer.appendChild(card);
+            
+            return cardContainer;
+        }
+        
+        function renderContent(categoryKey) {
+            const category = accessibilityData[categoryKey];
+            
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === categoryKey);
+            });
+            
+            contentArea.style.opacity = '0';
+            contentArea.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                currentCategoryTitle.textContent = category.name;
+                currentCategoryDescription.textContent = category.description;
+
+                dosContainer.innerHTML = '';
+                dontsContainer.innerHTML = '';
+
+                let delay = 0;
+                category.dos.forEach(item => {
+                    const card = createCard(item, 'dos');
+                    card.style.animationDelay = `${delay}ms`;
+                    dosContainer.appendChild(card);
+                    delay += 70;
+                });
+                category.donts.forEach(item => {
+                    const card = createCard(item, 'donts');
+                    card.style.animationDelay = `${delay}ms`;
+                    dontsContainer.appendChild(card);
+                    delay += 70;
+                });
+                
+                contentArea.style.opacity = '1';
+                contentArea.style.transform = 'translateY(0)';
+            }, 400);
+        }
+        
+        function initialize() {
+            Object.keys(accessibilityData).forEach((key) => {
+                const button = document.createElement('button');
+                button.textContent = accessibilityData[key].name;
+                button.dataset.category = key;
+                button.className = 'tab-button px-4 py-2 text-sm md:text-base font-semibold rounded-full';
+                button.onclick = () => renderContent(key);
+                categoryTabs.appendChild(button);
+            });
+            
+            renderContent('autismo');
+        }
+
+        initialize();
+    </script>
+</body>
+</html>
+
